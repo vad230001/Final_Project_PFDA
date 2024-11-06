@@ -2,7 +2,7 @@
 
 ## ❄️-❄️-❄️-❄️-❄️-❄️-❄️-❄️-❄️-❄️-❄️
 
-# Aka, ❄️🎄"Snowball Pong!"🎄❄️
+# Aka, ❄️🎄"Holly Jolly Snowball Fight!"🎄❄️
 ###   So basically, we're remaking the iconic, Pong game;
 ###   However, I will take it upon myself to create the entire pixelated background, characters, and find
 ###   suitable music to add and update this game.
