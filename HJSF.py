@@ -1,41 +1,59 @@
 import pygame
-
 pygame.init()
 
+
 # Set up window
-WIDTH, HEIGHT= 800, 600
+WIDTH, HEIGHT = 800, 600
 wn = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Holly Jolly Snowball Fight!")
-run = True
 
-# Colors
+FPS = 60
+
 WHITE = (255, 255, 255)
+BLACK = (255, 255, 255)
+ALPHA = (255, 255, 255, 255)
 
-# Ball Varibales
-radius = 10
-ball_x, ball_y = WIDTH/2 - radius, HEIGHT/2 - radius
-ball_vel_x, ball_vel_y = 1, 1
-
-# Paddle Dimensions
-paddle_width, paddle_height = 20, 120
-left_paddle_y = right_paddle_y = HEIGHT/2 - paddle_height/2
-left_paddle_x, right_paddle_x = 100 - paddle_width/2, WIDTH -(100 - paddle_width/2)
+PADDLE_WIDTH, PADDLE_HEIGHT = 20, 100
 
 
+class Paddle:
+    COLOR = WHITE
+    def __init__(self, x, y, width, height):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
 
-# Main Loop
-while run:
-    for i in pygame.event.get():
-        if i.type == pygame.QUIT:
-            run = False
-    # Movements
-    ball_x += ball_vel_x
-    ball_y += ball_vel_y
-    # Objects
-    pygame.draw.circle(wn, WHITE, (ball_x, ball_y), radius)
-    pygame.draw.rect(wn, WHITE, pygame.Rect(left_paddle_x, 
-    left_paddle_y, paddle_width, paddle_height))
-    pygame.draw.rect(wn, WHITE, pygame.Rect(right_paddle_x, 
-    right_paddle_y, paddle_width, paddle_height))
+    def draw(self, wn):
+        pygame.draw.rectangle(wn, self.COLOR, (self.x, self.y, self.width, self.height)))
 
+
+
+
+
+
+def draw(wn):
+    wn.fill(BLACK)
     pygame.display.update()
+    
+
+def main():
+    run = True
+    clock = pygame.time.Clock()
+
+    left_paddle = Paddle(10, HEIGHT//2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE_HEIGHT)
+
+    while run:
+        clock.tick(FPS)
+        draw(wn)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                break
+
+    pygame.quit()
+
+
+if __name__ == '__main__':
+    main()
