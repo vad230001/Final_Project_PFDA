@@ -4,7 +4,7 @@ pygame.init()
 
 
 # Set up window
-WIDTH, HEIGHT = 800, 600
+WIDTH, HEIGHT = 700, 500
 WN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Holly Jolly Snowball Fight!")
 
@@ -12,9 +12,9 @@ FPS = 60
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-ALPHA = (255, 255, 255, 255)
 
 PADDLE_WIDTH, PADDLE_HEIGHT = 20, 100
+BALL_RADIUS =  8
 
 """
 Also, we can use that one tile method used in our last lecture (notes in word) to add the a cute x-mas pattern.
@@ -33,7 +33,8 @@ class Paddle:
 
     def draw(self, WN):
         pygame.draw.rect(WN, self.COLOR, (self.x, self.y, self.width, self.height))
-    
+
+
     def move (self, up=True):
         if up:
             self.y -= self.VEL
@@ -41,12 +42,41 @@ class Paddle:
             self.y += self.VEL
 
 
-def draw(WN, paddles):
+class Ball:
+    MAX_VEL = 6
+    COLOR = WHITE
+
+    def __init__(self, x, y, radius):
+        self.x = x
+        self.y = y
+        self.radius = radius
+        self.x_vel = self.MAX_VEL
+        self.y_vel = 0
+
+    def draw(self, WN):
+        pygame.draw.circle(WN, self.COLOR, (self.x, self.y), self.radius)
+    
+    def move(self):
+        self.x += self.x_vel
+        self.y += self.y_vel
+
+
+
+
+# Making sure all are actually on scree, and making dashed line.
+def draw(WN, paddles, ball):
     WN.fill(BLACK)
 
     for paddle in paddles:
         paddle.draw(WN)
-    
+  
+    for i in range(10, HEIGHT, HEIGHT//20):
+        if i % 2 == 1:
+            continue
+        pygame.draw.rect(WN, WHITE, (WIDTH//2 - 5, i, 10, HEIGHT//20))
+
+
+    ball.draw(WN)
     pygame.display.update()
     
 # Setting movemnet keys and borders for paddles.
@@ -60,6 +90,7 @@ def handle_paddle_movement(keys, left_paddle, right_paddle):
         right_paddle.move(up=True)
     if keys[pygame.K_DOWN] and right_paddle.y - right_paddle.VEL + right_paddle.height <= HEIGHT:
         right_paddle.move(up=False)
+    
 
 
 """
@@ -73,10 +104,13 @@ def main():
     left_paddle = Paddle(10, HEIGHT//2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE_HEIGHT)
     right_paddle = Paddle(WIDTH - 10 - PADDLE_WIDTH, HEIGHT//2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE_HEIGHT)
 
+    # Getting the ball ROLLIN'.
+    ball = Ball(WIDTH//2, HEIGHT//2, BALL_RADIUS)
+
 
     while run:
         clock.tick(FPS)
-        draw(WN, [left_paddle, right_paddle])
+        draw(WN, [left_paddle, right_paddle], ball)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -85,6 +119,8 @@ def main():
         
         keys = pygame.key.get_pressed()
         handle_paddle_movement(keys, left_paddle, right_paddle)
+
+        ball.move()
 
     pygame.quit()
 
