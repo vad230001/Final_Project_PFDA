@@ -71,7 +71,7 @@ def main():
                 run = False
                 break
         
-        keys = pygame.ket.get_pressed()
+        keys = pygame.key.get_pressed()
         handle_paddle_movement(keys, left_paddle, right_paddle)
 
     pygame.quit()
