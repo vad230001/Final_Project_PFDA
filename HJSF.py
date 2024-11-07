@@ -16,7 +16,11 @@ ALPHA = (255, 255, 255, 255)
 
 PADDLE_WIDTH, PADDLE_HEIGHT = 20, 100
 
+"""
+Also, we can use that one tile method used in our last lecture (notes in word) to add the a cute x-mas pattern.
+Would it be okay to only have this as a duo match or should I implement a computor right paddle? The cp can be common deer, while player is rudolph!
 
+"""
 class Paddle:
     COLOR = WHITE
     VEL = 4
@@ -58,7 +62,10 @@ def handle_paddle_movement(keys, left_paddle, right_paddle):
         right_paddle.move(up=False)
 
 
-
+"""
+Later! We have to implement reindeer characters here !! We must use both tutorials (and then some) to add these features!!
+The reindeer will have to be swapped with the controllers.
+"""
 def main():
     run = True
     clock = pygame.time.Clock()
