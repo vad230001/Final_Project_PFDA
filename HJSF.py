@@ -96,6 +96,9 @@ def handle_paddle_movement(keys, left_paddle, right_paddle):
 """
 Later! We have to implement reindeer characters here !! We must use both tutorials (and then some) to add these features!!
 The reindeer will have to be swapped with the controllers.
+
+11/13 : So yeah late rwith the pong paddling, we're gonna have to adjust to be above/next to the reindeers head's, AND adjust these alpha settings?
+The paddles can be see through or blue? Idk, it just needs to be adjusted and set to PNG's when imported!
 """
 def main():
     run = True
