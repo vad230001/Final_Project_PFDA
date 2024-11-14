@@ -63,7 +63,7 @@ class Ball:
 
 
 
-# Making sure all are actually on scree, and making dashed line.
+# Making sure all are actually on screen, and making dashed line.
 def draw(WN, paddles, ball):
     WN.fill(BLACK)
 
@@ -78,7 +78,30 @@ def draw(WN, paddles, ball):
 
     ball.draw(WN)
     pygame.display.update()
+
+
+# 44:40 Adding collision. This makes sure collision isn't in the center but to the radius.
+
+def handle_collision(ball, left_paddle, right_paddle):
+    if ball.y + ball.radius >= HEIGHT:
+        ball.y *= -1
+    elif ball.y - ball.radius <= 0:
+        ball.y_vel *= -1
     
+    if ball.x_vel < 0:
+        if ball.y >= left_paddle.y and ball.y <= left_paddle.y + left_paddle.height:
+            if ball.x - ball.radius <= left_paddle.x + left_paddle.width:
+                ball.x_vel *= -1
+
+                middle_y = left_paddle.y + left_paddle.height / 2
+                difference_in_y = middle_y - ball.y
+    else:
+        if ball.y >= right_paddle.y and ball.y <= right_paddle.y + right_paddle.height:
+            if ball.x + ball.radius >= right_paddle.x:
+                ball.x_vel *= -1
+
+
+
 # Setting movemnet keys and borders for paddles.
 def handle_paddle_movement(keys, left_paddle, right_paddle):
     if keys[pygame.K_w] and left_paddle.y - left_paddle.VEL >= 0:
@@ -124,6 +147,7 @@ def main():
         handle_paddle_movement(keys, left_paddle, right_paddle)
 
         ball.move()
+        handle_collision(ball, left_paddle, right_paddle)
 
     pygame.quit()
 
