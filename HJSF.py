@@ -1,10 +1,12 @@
 import pygame
+import os
+import sys
 pygame.init()
 
 
 WIDTH, HEIGHT = 700, 500
-WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Pong")
+WN = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Holly Jolly Snowball Fight!")
 
 FPS = 60
 
@@ -17,10 +19,13 @@ BALL_RADIUS = 7
 SCORE_FONT = pygame.font.SysFont("comicsans", 50)
 WINNING_SCORE = 10
 
+# Adding backgrounds
+BG_IMAGE = pygame.image.load('snowy_bg.png')
+
 # We're gonna try to add our character sprites!
-class Sprites:
-    def __init__(self, pos, sprite_path_rudolph, sprite_path_comet):
-        
+class Sprites(pygame.sprite.Sprite):
+    pass
+
 
 class Paddle:
     COLOR = WHITE
@@ -72,24 +77,22 @@ class Ball:
         self.x_vel *= -1
 
 
-def draw(win, paddles, ball, left_score, right_score):
-    win.fill(BLACK)
-
+def draw(WN, paddles, ball, left_score, right_score):
     left_score_text = SCORE_FONT.render(f"{left_score}", 1, WHITE)
     right_score_text = SCORE_FONT.render(f"{right_score}", 1, WHITE)
-    win.blit(left_score_text, (WIDTH//4 - left_score_text.get_width()//2, 20))
-    win.blit(right_score_text, (WIDTH * (3/4) -
+    WN.blit(left_score_text, (WIDTH//4 - left_score_text.get_width()//2, 20))
+    WN.blit(right_score_text, (WIDTH * (3/4) -
                                 right_score_text.get_width()//2, 20))
 
     for paddle in paddles:
-        paddle.draw(win)
+        paddle.draw(WN)
 
     for i in range(10, HEIGHT, HEIGHT//20):
         if i % 2 == 1:
             continue
-        pygame.draw.rect(win, WHITE, (WIDTH//2 - 5, i, 10, HEIGHT//20))
+        pygame.draw.rect(WN, WHITE, (WIDTH//2 - 5, i, 10, HEIGHT//20))
 
-    ball.draw(win)
+    ball.draw(WN)
     pygame.display.update()
 
 
@@ -149,7 +152,8 @@ def main():
 
     while run:
         clock.tick(FPS)
-        draw(WIN, [left_paddle, right_paddle], ball, left_score, right_score)
+        WN.blit(BG_IMAGE, (0, 0))
+        draw(WN, [left_paddle, right_paddle], ball, left_score, right_score)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -179,7 +183,7 @@ def main():
 
         if won:
             text = SCORE_FONT.render(win_text, 1, WHITE)
-            WIN.blit(text, (WIDTH//2 - text.get_width() //
+            WN.blit(text, (WIDTH//2 - text.get_width() //
                             2, HEIGHT//2 - text.get_height()//2))
             pygame.display.update()
             pygame.time.delay(5000)
