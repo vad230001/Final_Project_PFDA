@@ -22,24 +22,46 @@ WINNING_SCORE = 10
 # Adding backgrounds
 BG_IMAGE = pygame.image.load('snowy_bg.png')
 
-# We're gonna try to add our character sprites!
-class Sprites(pygame.sprite.Sprite):
-    pass
-
-
-class Paddle:
+# Had to sepreate my "paddles" into two classes.
+class right_paddle:
     COLOR = WHITE
     VEL = 4
 
     def __init__(self, x, y, width, height):
-        self.x = self.original_x = x
-        self.y = self.original_y = y
+        self.image_neutral = pygame.image.load("comet_neutral.png").convert_alpha
+        self.image_hit = pygame.image.load("comet_hit.png").convert_alpha
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.index = 0
+    
+    def update(self):
+        WN.blit(self.image, self.rect)
+
+    def move(self, up=True):
+        if up:
+            self.y -= self.VEL
+        else:
+            self.y += self.VEL
+
+    def reset(self):
+        self.x = self.original_x
+        self.y = self.original_y
+
+class left_paddle:
+    COLOR = WHITE
+    VEL = 4
+
+    def __init__(self, x, y, width, height):
+        self.image_neutral = pygame.image.load("rud_neutral.png").convert_alpha
+        self.image_hit = pygame.image.load("rud_hit.png").convert_alpha
         self.width = width
         self.height = height
+        self.index = 0
+
 
     def draw(self, win):
-        pygame.draw.rect(
-            win, self.COLOR, (self.x, self.y, self.width, self.height))
+        pygame.draw.###
 
     def move(self, up=True):
         if up:
@@ -87,10 +109,7 @@ def draw(WN, paddles, ball, left_score, right_score):
     for paddle in paddles:
         paddle.draw(WN)
 
-    for i in range(10, HEIGHT, HEIGHT//20):
-        if i % 2 == 1:
-            continue
-        pygame.draw.rect(WN, WHITE, (WIDTH//2 - 5, i, 10, HEIGHT//20))
+    # draw paddles here?
 
     ball.draw(WN)
     pygame.display.update()
@@ -141,10 +160,9 @@ def main():
     run = True
     clock = pygame.time.Clock()
 
-    left_paddle = Paddle(30, HEIGHT//2 - PADDLE_HEIGHT //
-                         2, PADDLE_WIDTH, PADDLE_HEIGHT)
-    right_paddle = Paddle(WIDTH - 30 - PADDLE_WIDTH, HEIGHT //
-                          2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE_HEIGHT)
+    left_paddle = (WIDTH//2, HEIGHT//2)
+    right_paddle = (WIDTH//2, HEIGHT//2)
+
     ball = Ball(WIDTH // 2, HEIGHT // 2, BALL_RADIUS)
 
     left_score = 0
