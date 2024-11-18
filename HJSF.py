@@ -13,8 +13,9 @@ FPS = 60
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
-PADDLE_WIDTH, PADDLE_HEIGHT = 20, 100
 BALL_RADIUS = 7
+PLAYER_1_WIDTH, PLAYER_1_WIDTH = 130, 159
+PLAYER_2_WIDTH, PLAYER_2_WIDTH = 128, 153
 
 SCORE_FONT = pygame.font.SysFont("comicsans", 50)
 WINNING_SCORE = 10
@@ -22,21 +23,20 @@ WINNING_SCORE = 10
 # Adding backgrounds
 BG_IMAGE = pygame.image.load('snowy_bg.png')
 
-# Had to sepreate my "paddles" into two classes.
-class right_paddle:
+
+
+#rud neutral dimensions = 130 x 159
+#rud hit dimensions = 147 x 159
+class player_1:
     COLOR = WHITE
     VEL = 4
 
-    def __init__(self, x, y, width, height):
-        self.image_neutral = pygame.image.load("comet_neutral.png").convert_alpha
-        self.image_hit = pygame.image.load("comet_hit.png").convert_alpha
+    def __init__(self, x, y):
+        img = pygame.image.load('rud_neutral.png').convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.index = 0
-    
-    def update(self):
-        WN.blit(self.image, self.rect)
+
 
     def move(self, up=True):
         if up:
@@ -48,20 +48,17 @@ class right_paddle:
         self.x = self.original_x
         self.y = self.original_y
 
-class left_paddle:
+
+#comet neutral dimensions = 128 x 153
+#comet hit dimensions = 143 x 153
+class player_2:
     COLOR = WHITE
     VEL = 4
 
-    def __init__(self, x, y, width, height):
-        self.image_neutral = pygame.image.load("rud_neutral.png").convert_alpha
-        self.image_hit = pygame.image.load("rud_hit.png").convert_alpha
-        self.width = width
-        self.height = height
-        self.index = 0
+    def __init__(self, x, y):
+        img = pygame.image.load('')
+    
 
-
-    def draw(self, win):
-        pygame.draw.###
 
     def move(self, up=True):
         if up:
@@ -99,70 +96,72 @@ class Ball:
         self.x_vel *= -1
 
 
-def draw(WN, paddles, ball, left_score, right_score):
+def draw(WN, Rudolph, Comet, ball, left_score, right_score):
     left_score_text = SCORE_FONT.render(f"{left_score}", 1, WHITE)
     right_score_text = SCORE_FONT.render(f"{right_score}", 1, WHITE)
     WN.blit(left_score_text, (WIDTH//4 - left_score_text.get_width()//2, 20))
     WN.blit(right_score_text, (WIDTH * (3/4) -
                                 right_score_text.get_width()//2, 20))
-
-    for paddle in paddles:
-        paddle.draw(WN)
-
-    # draw paddles here?
+    
+    #Below makes the line.
+    for i in range(10, HEIGHT, HEIGHT//20):
+        if i % 2 == 1:
+            continue
+        pygame.draw.rect(WN, WHITE, (WIDTH//2 - 5, i, 10, HEIGHT//20))
 
     ball.draw(WN)
     pygame.display.update()
 
 
-def handle_collision(ball, left_paddle, right_paddle):
+def handle_collision(ball, player_1, player_2):
     if ball.y + ball.radius >= HEIGHT:
         ball.y_vel *= -1
     elif ball.y - ball.radius <= 0:
         ball.y_vel *= -1
 
     if ball.x_vel < 0:
-        if ball.y >= left_paddle.y and ball.y <= left_paddle.y + left_paddle.height:
-            if ball.x - ball.radius <= left_paddle.x + left_paddle.width:
+        if ball.y >= player_1.y and ball.y <= player_1.y + player_1.height:
+            if ball.x - ball.radius <= player_1.x + player_1.width:
                 ball.x_vel *= -1
 
-                middle_y = left_paddle.y + left_paddle.height / 2
+                middle_y = player_1.y + player_1.height / 2
                 difference_in_y = middle_y - ball.y
-                reduction_factor = (left_paddle.height / 2) / ball.MAX_VEL
+                reduction_factor = (player_1.height / 2) / ball.MAX_VEL
                 y_vel = difference_in_y / reduction_factor
                 ball.y_vel = -1 * y_vel
 
     else:
-        if ball.y >= right_paddle.y and ball.y <= right_paddle.y + right_paddle.height:
-            if ball.x + ball.radius >= right_paddle.x:
+        if ball.y >= player_2.y and ball.y <= player_2.y + player_2.height:
+            if ball.x + ball.radius >= player_2.x:
                 ball.x_vel *= -1
 
-                middle_y = right_paddle.y + right_paddle.height / 2
+                middle_y = player_2.y + player_2.height / 2
                 difference_in_y = middle_y - ball.y
-                reduction_factor = (right_paddle.height / 2) / ball.MAX_VEL
+                reduction_factor = (player_2.height / 2) / ball.MAX_VEL
                 y_vel = difference_in_y / reduction_factor
                 ball.y_vel = -1 * y_vel
 
 
-def handle_paddle_movement(keys, left_paddle, right_paddle):
-    if keys[pygame.K_w] and left_paddle.y - left_paddle.VEL >= 0:
-        left_paddle.move(up=True)
-    if keys[pygame.K_s] and left_paddle.y + left_paddle.VEL + left_paddle.height <= HEIGHT:
-        left_paddle.move(up=False)
+def player_paddle_movement(keys, player_1, player_2):
+    if keys[pygame.K_w] and player_1.y - player_1.VEL >= 0:
+        player_1.move(up=True)
+    if keys[pygame.K_s] and player_1.y + player_1.VEL + player_1.height <= HEIGHT:
+        player_1.move(up=False)
 
-    if keys[pygame.K_UP] and right_paddle.y - right_paddle.VEL >= 0:
-        right_paddle.move(up=True)
-    if keys[pygame.K_DOWN] and right_paddle.y + right_paddle.VEL + right_paddle.height <= HEIGHT:
-        right_paddle.move(up=False)
+    if keys[pygame.K_UP] and player_2.y - player_2.VEL >= 0:
+        player_2.move(up=True)
+    if keys[pygame.K_DOWN] and player_2.y + player_2.VEL + player_2.height <= HEIGHT:
+        player_2.move(up=False)
 
 # Here, we need to adjust the original code's padding off the walls so our character acturally fits!!!
 def main():
     run = True
     clock = pygame.time.Clock()
 
-    left_paddle = (WIDTH//2, HEIGHT//2)
-    right_paddle = (WIDTH//2, HEIGHT//2)
-
+    player_1 = player_1(30, HEIGHT//2 - PLAYER_1_HEIGHT //
+                         2, PADDLE_WIDTH, PLAYER_1_HEIGHT)
+    player_2 = player_2(WIDTH - 30 - PADDLE_WIDTH, HEIGHT //
+                          2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE_HEIGHT)
     ball = Ball(WIDTH // 2, HEIGHT // 2, BALL_RADIUS)
 
     left_score = 0
@@ -171,7 +170,7 @@ def main():
     while run:
         clock.tick(FPS)
         WN.blit(BG_IMAGE, (0, 0))
-        draw(WN, [left_paddle, right_paddle], ball, left_score, right_score)
+        draw(WN, [player_1, player_2], ball, left_score, right_score)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -179,10 +178,10 @@ def main():
                 break
 
         keys = pygame.key.get_pressed()
-        handle_paddle_movement(keys, left_paddle, right_paddle)
+        player_paddle_movement(keys, player_1, player_2)
 
         ball.move()
-        handle_collision(ball, left_paddle, right_paddle)
+        handle_collision(ball, player_1, player_2)
 
         if ball.x < 0:
             right_score += 1
@@ -206,8 +205,8 @@ def main():
             pygame.display.update()
             pygame.time.delay(5000)
             ball.reset()
-            left_paddle.reset()
-            right_paddle.reset()
+            player_1.reset()
+            player_2.reset()
             left_score = 0
             right_score = 0
 
