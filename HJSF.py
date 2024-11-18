@@ -14,8 +14,8 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
 BALL_RADIUS = 7
-PLAYER_1_WIDTH, PLAYER_1_WIDTH = 130, 159
-PLAYER_2_WIDTH, PLAYER_2_WIDTH = 128, 153
+PLAYER_1_WIDTH, PLAYER_1_HEIGHT = 130, 159
+PLAYER_2_WIDTH, PLAYER_2_HEIGHT = 128, 153
 
 SCORE_FONT = pygame.font.SysFont("comicsans", 50)
 WINNING_SCORE = 10
@@ -30,13 +30,16 @@ BG_IMAGE = pygame.image.load('snowy_bg.png')
 class player_1:
     COLOR = WHITE
     VEL = 4
+    PLAYER_1_WIDTH, PLAYER_1_HEIGHT = 130, 159
 
     def __init__(self, x, y):
-        img = pygame.image.load('rud_neutral.png').convert_alpha()
+        self.image = pygame.image.load('rud_neutral.png').convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-
+    
+    def update(self):
+        WN.blit(self.image, self.rect)
 
     def move(self, up=True):
         if up:
@@ -54,11 +57,16 @@ class player_1:
 class player_2:
     COLOR = WHITE
     VEL = 4
+    PLAYER_2_WIDTH, PLAYER_2_HEIGHT = 128, 153
 
     def __init__(self, x, y):
-        img = pygame.image.load('')
+        self.image = pygame.image.load('rud_neutral.png').convert_alpha()
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
     
-
+    def update(self):
+        WN.blit(self.image, self.rect)
 
     def move(self, up=True):
         if up:
@@ -96,14 +104,13 @@ class Ball:
         self.x_vel *= -1
 
 
-def draw(WN, Rudolph, Comet, ball, left_score, right_score):
+def draw(WN, player_1, player_2, ball, left_score, right_score):
     left_score_text = SCORE_FONT.render(f"{left_score}", 1, WHITE)
     right_score_text = SCORE_FONT.render(f"{right_score}", 1, WHITE)
     WN.blit(left_score_text, (WIDTH//4 - left_score_text.get_width()//2, 20))
     WN.blit(right_score_text, (WIDTH * (3/4) -
                                 right_score_text.get_width()//2, 20))
     
-    #Below makes the line.
     for i in range(10, HEIGHT, HEIGHT//20):
         if i % 2 == 1:
             continue
@@ -158,10 +165,10 @@ def main():
     run = True
     clock = pygame.time.Clock()
 
-    player_1 = player_1(30, HEIGHT//2 - PLAYER_1_HEIGHT //
-                         2, PADDLE_WIDTH, PLAYER_1_HEIGHT)
-    player_2 = player_2(WIDTH - 30 - PADDLE_WIDTH, HEIGHT //
-                          2 - PADDLE_HEIGHT//2, PADDLE_WIDTH, PADDLE_HEIGHT)
+    player_1 = (HEIGHT//2 - PLAYER_1_HEIGHT //
+                         2, PLAYER_1_WIDTH, PLAYER_1_HEIGHT)
+    player_2 = (WIDTH - PLAYER_2_WIDTH, HEIGHT //
+                          2 - PLAYER_2_HEIGHT//2, PLAYER_2_WIDTH, PLAYER_2_HEIGHT)
     ball = Ball(WIDTH // 2, HEIGHT // 2, BALL_RADIUS)
 
     left_score = 0
@@ -170,6 +177,7 @@ def main():
     while run:
         clock.tick(FPS)
         WN.blit(BG_IMAGE, (0, 0))
+
         draw(WN, [player_1, player_2], ball, left_score, right_score)
 
         for event in pygame.event.get():
@@ -202,6 +210,7 @@ def main():
             text = SCORE_FONT.render(win_text, 1, WHITE)
             WN.blit(text, (WIDTH//2 - text.get_width() //
                             2, HEIGHT//2 - text.get_height()//2))
+            
             pygame.display.update()
             pygame.time.delay(5000)
             ball.reset()
