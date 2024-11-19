@@ -1,87 +1,57 @@
 import pygame
 import os
 import sys
+
 pygame.init()
 
-
+#Common : Screen Setting
 WIDTH, HEIGHT = 700, 500
 WN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Holly Jolly Snowball Fight!")
 
 FPS = 60
 
+#Common : Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
+##Common : Game Setting
 BALL_RADIUS = 7
-PLAYER_1_WIDTH, PLAYER_1_HEIGHT = 130, 159
-PLAYER_2_WIDTH, PLAYER_2_HEIGHT = 128, 153
-
+PLAYER_WIDTH, PLAYER_HEIGHT = 130, 159
 SCORE_FONT = pygame.font.SysFont("comicsans", 50)
 WINNING_SCORE = 10
 
 # Adding backgrounds
 BG_IMAGE = pygame.image.load('snowy_bg.png')
 
-
-
-#rud neutral dimensions = 130 x 159
-#rud hit dimensions = 147 x 159
-class player_1:
-    COLOR = WHITE
+#Common Player Class:
+class Players:
     VEL = 4
-    PLAYER_1_WIDTH, PLAYER_1_HEIGHT = 130, 159
 
-    def __init__(self, x, y):
-        self.image = pygame.image.load('rud_neutral.png').convert_alpha()
+    def __init__(self, x, y, image_path):
+        self.image = pygame.image.load(image_path).convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
+
     
-    def update(self):
-        WN.blit(self.image, self.rect)
+    def draw(self, win):
+        win.blit(self.image, self.rect)
 
     def move(self, up=True):
         if up:
-            self.y -= self.VEL
+            self.rect.y -= self.VEL
         else:
-            self.y += self.VEL
+            self.rect.y += self.VEL
 
-    def reset(self):
-        self.x = self.original_x
-        self.y = self.original_y
-
-
-#comet neutral dimensions = 128 x 153
-#comet hit dimensions = 143 x 153
-class player_2:
-    COLOR = WHITE
-    VEL = 4
-    PLAYER_2_WIDTH, PLAYER_2_HEIGHT = 128, 153
-
-    def __init__(self, x, y):
-        self.image = pygame.image.load('rud_neutral.png').convert_alpha()
-        self.rect = self.image.get_rect()
+    def reset(self, x,y):
         self.rect.x = x
         self.rect.y = y
-    
-    def update(self):
-        WN.blit(self.image, self.rect)
-
-    def move(self, up=True):
-        if up:
-            self.y -= self.VEL
-        else:
-            self.y += self.VEL
-
-    def reset(self):
-        self.x = self.original_x
-        self.y = self.original_y
 
 
 class Ball:
     MAX_VEL = 5
-    COLOR = WHITE
 
     def __init__(self, x, y, radius):
         self.x = self.original_x = x
@@ -91,7 +61,7 @@ class Ball:
         self.y_vel = 0
 
     def draw(self, win):
-        pygame.draw.circle(win, self.COLOR, (self.x, self.y), self.radius)
+        pygame.draw.circle(win, WHITE, (self.x, self.y), self.radius)
 
     def move(self):
         self.x += self.x_vel
@@ -103,94 +73,103 @@ class Ball:
         self.y_vel = 0
         self.x_vel *= -1
 
-
+# Draws game elements on screen:
 def draw(WN, player_1, player_2, ball, left_score, right_score):
+    WN.blit(BG_IMAGE (0,0))
+
+    #Draws Score
     left_score_text = SCORE_FONT.render(f"{left_score}", 1, WHITE)
     right_score_text = SCORE_FONT.render(f"{right_score}", 1, WHITE)
     WN.blit(left_score_text, (WIDTH//4 - left_score_text.get_width()//2, 20))
-    WN.blit(right_score_text, (WIDTH * (3/4) -
-                                right_score_text.get_width()//2, 20))
+    WN.blit(right_score_text, (WIDTH * (3/4) - right_score_text.get_width()//2, 20))
     
+    #Creates Dashed Border
     for i in range(10, HEIGHT, HEIGHT//20):
         if i % 2 == 1:
             continue
         pygame.draw.rect(WN, WHITE, (WIDTH//2 - 5, i, 10, HEIGHT//20))
-
+    
+    #Draw Players and Ball!
+    player_1.draw(WN)
+    player_2.draw(WN)
     ball.draw(WN)
+
     pygame.display.update()
 
 
+
 def handle_collision(ball, player_1, player_2):
-    if ball.y + ball.radius >= HEIGHT:
+
+    #Adds bounce :
+    if ball.y + ball.radius >= HEIGHT or  ball.y - ball.radius <= 0:
         ball.y_vel *= -1
-    elif ball.y - ball.radius <= 0:
-        ball.y_vel *= -1
+    
+    # Collision w/Player 1:
+    """collide rect in pygame checks is there are 2 or more
+    rectangles/sprites are colliding.
+    
+    first we get the dimension in the ball """
+    if player_1.rect.colliderect(pygame.Rect(ball.x - ball.radius, ball.y - ball.radius, ball.radius * 2, ball.radius * 2)):
+        ball.x_vel *= -1
+    
+     # Collision w/Player 2:
+    if player_2.rect.colliderect(pygame.Rect(ball.x - ball.radius, ball.y - ball.radius, ball.radius * 2, ball.radius * 2)):
+        ball.x_vel *= -1
 
-    if ball.x_vel < 0:
-        if ball.y >= player_1.y and ball.y <= player_1.y + player_1.height:
-            if ball.x - ball.radius <= player_1.x + player_1.width:
-                ball.x_vel *= -1
-
-                middle_y = player_1.y + player_1.height / 2
-                difference_in_y = middle_y - ball.y
-                reduction_factor = (player_1.height / 2) / ball.MAX_VEL
-                y_vel = difference_in_y / reduction_factor
-                ball.y_vel = -1 * y_vel
-
-    else:
-        if ball.y >= player_2.y and ball.y <= player_2.y + player_2.height:
-            if ball.x + ball.radius >= player_2.x:
-                ball.x_vel *= -1
-
-                middle_y = player_2.y + player_2.height / 2
-                difference_in_y = middle_y - ball.y
-                reduction_factor = (player_2.height / 2) / ball.MAX_VEL
-                y_vel = difference_in_y / reduction_factor
-                ball.y_vel = -1 * y_vel
-
-
+"""
+    Here we're swapping the self.x with self.rect.y, we're looking for the rect!
+    """
 def player_paddle_movement(keys, player_1, player_2):
-    if keys[pygame.K_w] and player_1.y - player_1.VEL >= 0:
+
+    #player 1
+    if keys[pygame.K_w] and player_1.rect.y - player_1.VEL >= 0:
         player_1.move(up=True)
-    if keys[pygame.K_s] and player_1.y + player_1.VEL + player_1.height <= HEIGHT:
+    if keys[pygame.K_s] and player_1.y + player_1.VEL + player_1.rect.height <= HEIGHT:
         player_1.move(up=False)
 
-    if keys[pygame.K_UP] and player_2.y - player_2.VEL >= 0:
+    #player 2
+    if keys[pygame.K_UP] and player_2.rect.y - player_2.VEL >= 0:
         player_2.move(up=True)
-    if keys[pygame.K_DOWN] and player_2.y + player_2.VEL + player_2.height <= HEIGHT:
+    if keys[pygame.K_DOWN] and player_2.y + player_2.VEL + player_2.rect.height <= HEIGHT:
         player_2.move(up=False)
 
 # Here, we need to adjust the original code's padding off the walls so our character acturally fits!!!
 def main():
-    run = True
     clock = pygame.time.Clock()
 
-    player_1 = (HEIGHT//2 - PLAYER_1_HEIGHT //
-                         2, PLAYER_1_WIDTH, PLAYER_1_HEIGHT)
-    player_2 = (WIDTH - PLAYER_2_WIDTH, HEIGHT //
-                          2 - PLAYER_2_HEIGHT//2, PLAYER_2_WIDTH, PLAYER_2_HEIGHT)
-    ball = Ball(WIDTH // 2, HEIGHT // 2, BALL_RADIUS)
+    player_1 = Players(WIDTH // 20, HEIGHT //2 - PLAYER_HEIGHT //2, 'rud_neutral.png')
+    player_2 = Players(WIDTH - PLAYER_WIDTH - WIDTH // 20, HEIGHT // 2 - PLAYER_HEIGHT // 2, 'comet_neutral.png')
+    ball = Ball(WIDTH //2, HEIGHT //2, BALL_RADIUS)
 
+    #Start scores
     left_score = 0
     right_score = 0
+
+    # We have to draw all things/ game elements first before run=True.
+    run = True
 
     while run:
         clock.tick(FPS)
         WN.blit(BG_IMAGE, (0, 0))
 
-        draw(WN, [player_1, player_2], ball, left_score, right_score)
+        #draw(WN, ball, left_score, right_score)
 
+        # Event Handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-                break
+                # break
 
+        # Player Movement
         keys = pygame.key.get_pressed()
         player_paddle_movement(keys, player_1, player_2)
 
+        #Ball Movement
         ball.move()
         handle_collision(ball, player_1, player_2)
+        
 
+        # Score Logic
         if ball.x < 0:
             right_score += 1
             ball.reset()
@@ -198,6 +177,7 @@ def main():
             left_score += 1
             ball.reset()
 
+        # Win Condition
         won = False
         if left_score >= WINNING_SCORE:
             won = True
@@ -208,16 +188,16 @@ def main():
 
         if won:
             text = SCORE_FONT.render(win_text, 1, WHITE)
-            WN.blit(text, (WIDTH//2 - text.get_width() //
-                            2, HEIGHT//2 - text.get_height()//2))
-            
+            WN.blit(text, (WIDTH//2 - text.get_width() // 2, HEIGHT//2 - text.get_height()//2))
             pygame.display.update()
             pygame.time.delay(5000)
             ball.reset()
-            player_1.reset()
-            player_2.reset()
+            player_1.reset(WIDTH // 20, HEIGHT //2 - PLAYER_HEIGHT //2)
+            player_2.reset(WIDTH - PLAYER_WIDTH - WIDTH // 20, HEIGHT // 2 - PLAYER_HEIGHT // 2)
             left_score = 0
             right_score = 0
+
+        draw(WN, player_1, player_2, ball, left_score, right_score)
 
     pygame.quit()
 
