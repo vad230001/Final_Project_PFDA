@@ -4,6 +4,12 @@ import sys
 
 pygame.init()
 
+"""
+    To TURN IN : We have to record this and upload to youtube !!
+    Screen record, put into box, voice record w/ vid playing and talk over.
+    Upload to YT but keep it as unlisted, and SET THE LINK in the "read me:" part of your code!
+    
+"""
 #Common : Screen Setting
 WIDTH, HEIGHT = 700, 500
 WN = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -28,17 +34,32 @@ BG_IMAGE = pygame.image.load('snowy_bg.png')
 class Players:
     VEL = 4
 
-    def __init__(self, x, y, image_path):
-        self.image = pygame.image.load(image_path).convert_alpha()
+    def __init__(self, x, y, idle_image_path, hit_image_path):
+        self.image_idle = pygame.image.load(idle_image_path).convert_alpha()
+        self.image_hit = pygame.image.load(hit_image_path).convert_alpha()
+        self.image = self.image_idle
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-
+        self.hit_timer = 0
 
     
     def draw(self, win):
         win.blit(self.image, self.rect)
 
+    def update(self):
+        #if hit. timer will activate, and reset!
+        if self.hit_timer > 0:
+            self.hit_timer -= 1
+        # Then revert to neutral image.
+        else:
+            self.image = self.image_idle
+    #Detect hit or not
+
+    def on_hit(self):
+        self.image = self.image_hit
+        self.hit_timer = 10 # Hit image appear time.
+    
     def move(self, up=True):
         if up:
             self.rect.y -= self.VEL
@@ -111,10 +132,12 @@ def handle_collision(ball, player_1, player_2):
     first we get the dimension in the ball """
     if player_1.rect.colliderect(pygame.Rect(ball.x - ball.radius, ball.y - ball.radius, ball.radius * 2, ball.radius * 2)):
         ball.x_vel *= -1
+        player_1.on_hit()
     
      # Collision w/Player 2:
     if player_2.rect.colliderect(pygame.Rect(ball.x - ball.radius, ball.y - ball.radius, ball.radius * 2, ball.radius * 2)):
         ball.x_vel *= -1
+        player_2.on_hit()
 
 """
     Here we're swapping the self.x with self.rect.y, we're looking for the rect!
@@ -137,8 +160,8 @@ def player_paddle_movement(keys, player_1, player_2):
 def main():
     clock = pygame.time.Clock()
 
-    player_1 = Players(0, HEIGHT //2 - PLAYER_HEIGHT //2, 'rud_neutral.png')
-    player_2 = Players(WIDTH - PLAYER_WIDTH + 2, HEIGHT //2 - PLAYER_HEIGHT //2, 'comet_neutral.png')
+    player_1 = Players(0, HEIGHT //2 - PLAYER_HEIGHT //2, 'rud_neutral.png', 'rud_hit.png')
+    player_2 = Players(WIDTH - PLAYER_WIDTH + 2, HEIGHT //2 - PLAYER_HEIGHT //2, 'comet_neutral.png', 'comet_hit.png')
     ball = Ball(WIDTH //2, HEIGHT //2, BALL_RADIUS)
 
     #Start scores
@@ -150,7 +173,6 @@ def main():
 
     while run:
         clock.tick(FPS)
-        WN.blit(BG_IMAGE, (0, 0))
 
         #draw(WN, ball, left_score, right_score)
 
@@ -167,7 +189,14 @@ def main():
         #Ball Movement
         ball.move()
         handle_collision(ball, player_1, player_2)
-        
+
+        player_1.update()
+        player_2.update()
+
+        WN.blit(BG_IMAGE, (0, 0))
+        player_1.draw(WN)
+        player_2.draw(WN)
+        ball.draw(WN)
 
         # Score Logic
         if ball.x < 0:
