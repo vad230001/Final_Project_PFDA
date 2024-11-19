@@ -137,8 +137,8 @@ def player_paddle_movement(keys, player_1, player_2):
 def main():
     clock = pygame.time.Clock()
 
-    player_1 = Players(WIDTH // 20, HEIGHT //2 - PLAYER_HEIGHT //2, 'rud_neutral.png')
-    player_2 = Players(WIDTH - PLAYER_WIDTH - WIDTH // 20, HEIGHT // 2 - PLAYER_HEIGHT // 2, 'comet_neutral.png')
+    player_1 = Players(0, HEIGHT //2 - PLAYER_HEIGHT //2, 'rud_neutral.png')
+    player_2 = Players(WIDTH - PLAYER_WIDTH + 2, HEIGHT //2 - PLAYER_HEIGHT //2, 'comet_neutral.png')
     ball = Ball(WIDTH //2, HEIGHT //2, BALL_RADIUS)
 
     #Start scores
