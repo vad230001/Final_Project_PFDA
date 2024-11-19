@@ -75,7 +75,7 @@ class Ball:
 
 # Draws game elements on screen:
 def draw(WN, player_1, player_2, ball, left_score, right_score):
-    WN.blit(BG_IMAGE (0,0))
+    WN.blit(BG_IMAGE, (0,0))
 
     #Draws Score
     left_score_text = SCORE_FONT.render(f"{left_score}", 1, WHITE)
@@ -124,13 +124,13 @@ def player_paddle_movement(keys, player_1, player_2):
     #player 1
     if keys[pygame.K_w] and player_1.rect.y - player_1.VEL >= 0:
         player_1.move(up=True)
-    if keys[pygame.K_s] and player_1.y + player_1.VEL + player_1.rect.height <= HEIGHT:
+    if keys[pygame.K_s] and player_1.rect.y + player_1.VEL + player_1.rect.height <= HEIGHT:
         player_1.move(up=False)
 
     #player 2
     if keys[pygame.K_UP] and player_2.rect.y - player_2.VEL >= 0:
         player_2.move(up=True)
-    if keys[pygame.K_DOWN] and player_2.y + player_2.VEL + player_2.rect.height <= HEIGHT:
+    if keys[pygame.K_DOWN] and player_2.rect.y + player_2.VEL + player_2.rect.height <= HEIGHT:
         player_2.move(up=False)
 
 # Here, we need to adjust the original code's padding off the walls so our character acturally fits!!!
