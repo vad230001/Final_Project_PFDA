@@ -24,6 +24,7 @@ BLACK = (0, 0, 0)
 ##Common : Game Setting
 BALL_RADIUS = 7
 PLAYER_WIDTH, PLAYER_HEIGHT = 130, 159
+SNOWMAN_WIDTH, SNOWMAN_HEIGHT = 67, 73
 SCORE_FONT = pygame.font.SysFont("comicsans", 50)
 WINNING_SCORE = 10
 
@@ -34,14 +35,21 @@ BG_IMAGE = pygame.image.load('snowy_bg.png')
 class Players:
     VEL = 4
 
-    def __init__(self, x, y, idle_image_path, hit_image_path):
+    def __init__(self, x, y, idle_image_path, hit_image_path, miss_image_path, celebrate_image_path):
         self.image_idle = pygame.image.load(idle_image_path).convert_alpha()
         self.image_hit = pygame.image.load(hit_image_path).convert_alpha()
+        self.image_miss = pygame.image.load(miss_image_path).convert_alpha()
+        self.image_celebrate = pygame.image.load(celebrate_image_path).convert_alpha()
         self.image = self.image_idle
+        self.image = self.image_miss
+        self.image = self.image_celebrate
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
         self.hit_timer = 0
+        self.celebrate_timer = 0
+        self.miss_timer = 0
 
     
     def draw(self, win):
@@ -51,14 +59,27 @@ class Players:
         #if hit. timer will activate, and reset!
         if self.hit_timer > 0:
             self.hit_timer -= 1
+        if self.miss_timer > 0:
+            self.miss_timer -= 1
+        if self.win_timer > 0:
+            self.win_timer -= 1  
         # Then revert to neutral image.
         else:
             self.image = self.image_idle
-    #Detect hit or not
-
+    
+    #Detect hit or not (Reindeer Players Only)
     def on_hit(self):
         self.image = self.image_hit
         self.hit_timer = 10 # Hit image appear time.
+    
+    #Detect miss or win (Snowman Only)
+    def on_miss(self):  
+        self.image = self.image_miss
+        self.miss_timer = 20 #makes miss animation frame FOR SNOWMAN.
+
+    def on_win(self):
+        self.image = self.image_celebrate
+        self.celebrate_timer = 30 #makes celebrate animation frame FOR SNOWMAN.
     
     def move(self, up=True):
         if up:
@@ -95,7 +116,7 @@ class Ball:
         self.x_vel *= -1
 
 # Draws game elements on screen:
-def draw(WN, player_1, player_2, ball, left_score, right_score):
+def draw(WN, snowman, player_1, player_2, ball, left_score, right_score):
     WN.blit(BG_IMAGE, (0,0))
 
     #Draws Score
@@ -104,6 +125,8 @@ def draw(WN, player_1, player_2, ball, left_score, right_score):
     WN.blit(left_score_text, (WIDTH//4 - left_score_text.get_width()//2, 20))
     WN.blit(right_score_text, (WIDTH * (3/4) - right_score_text.get_width()//2, 20))
     
+    #Draw Score Emotes (Snowman) Here???
+
     #Creates Dashed Border
     for i in range(10, HEIGHT, HEIGHT//20):
         if i % 2 == 1:
@@ -113,13 +136,13 @@ def draw(WN, player_1, player_2, ball, left_score, right_score):
     #Draw Players and Ball!
     player_1.draw(WN)
     player_2.draw(WN)
+    snowman.draw(WN)
     ball.draw(WN)
 
     pygame.display.update()
 
 
-
-def handle_collision(ball, player_1, player_2):
+def handle_collision(ball, snowman, player_1, player_2):
 
     #Adds bounce :
     if ball.y + ball.radius >= HEIGHT or  ball.y - ball.radius <= 0:
@@ -138,6 +161,10 @@ def handle_collision(ball, player_1, player_2):
     if player_2.rect.colliderect(pygame.Rect(ball.x - ball.radius, ball.y - ball.radius, ball.radius * 2, ball.radius * 2)):
         ball.x_vel *= -1
         player_2.on_hit()
+
+    # SNOWMAN LOGIC HERE :
+    if ball.reset:
+        snowman.on_miss()
 
 """
     Here we're swapping the self.x with self.rect.y, we're looking for the rect!
@@ -160,8 +187,10 @@ def player_paddle_movement(keys, player_1, player_2):
 def main():
     clock = pygame.time.Clock()
 
-    player_1 = Players(0, HEIGHT //2 - PLAYER_HEIGHT //2, 'rud_neutral.png', 'rud_hit.png')
-    player_2 = Players(WIDTH - PLAYER_WIDTH + 2, HEIGHT //2 - PLAYER_HEIGHT //2, 'comet_neutral.png', 'comet_hit.png')
+    player_1 = Players(0, HEIGHT //2 - PLAYER_HEIGHT //2, 'rud_neutral.png', 'rud_hit.png', None, None)
+    player_2 = Players(WIDTH - PLAYER_WIDTH + 2, HEIGHT //2 - PLAYER_HEIGHT //2, 'comet_neutral.png', 'comet_hit.png', None, None)
+    # Snowman Position :
+    snowman = Players(WIDTH//4 - SNOWMAN_WIDTH//2, 'snowman_neutral.png', None, 'snowman_oh.png', 'snowman_celebrate.png')
     ball = Ball(WIDTH //2, HEIGHT //2, BALL_RADIUS)
 
     #Start scores
@@ -188,14 +217,16 @@ def main():
 
         #Ball Movement
         ball.move()
-        handle_collision(ball, player_1, player_2)
+        handle_collision(ball, snowman, player_1, player_2)
 
         player_1.update()
         player_2.update()
+        snowman.update()
 
         WN.blit(BG_IMAGE, (0, 0))
         player_1.draw(WN)
         player_2.draw(WN)
+        snowman.draw(WN)
         ball.draw(WN)
 
         # Score Logic
@@ -223,10 +254,12 @@ def main():
             ball.reset()
             player_1.reset(WIDTH // 20, HEIGHT //2 - PLAYER_HEIGHT //2)
             player_2.reset(WIDTH - PLAYER_WIDTH - WIDTH // 20, HEIGHT // 2 - PLAYER_HEIGHT // 2)
+            snowman.reset()
+
             left_score = 0
             right_score = 0
 
-        draw(WN, player_1, player_2, ball, left_score, right_score)
+        draw(WN, snowman, player_1, player_2, ball, left_score, right_score)
 
     pygame.quit()
 
