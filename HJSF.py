@@ -51,10 +51,6 @@ class Players:
         #if hit. timer will activate, and reset!
         if self.hit_timer > 0:
             self.hit_timer -= 1
-        if self.miss_timer > 0:
-            self.miss_timer -= 1
-        if self.win_timer > 0:
-            self.win_timer -= 1  
         # Then revert to neutral image.
         else:
             self.image = self.image_idle
@@ -82,23 +78,23 @@ class Snowman:
         if miss_image_path:
             #oh image here
             self.image_miss = pygame.image.load(miss_image_path).convert_alpha()
-        else:
-            idle_image_path
         if win_image_path:
             self.image_win = pygame.image.load(win_image_path).convert_alpha()
-        else:
-            idle_image_path
+        self.image = self.image_idle
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.hit_timer = 0
 
     def draw(self, win):
         win.blit(self.image, self.rect)
 
     def update(self):
-        #emote timer will activate, and reset!
+        #emote timer will activate, and reset!Then revert to neutral image.
         if self.miss_timer > 0:
             self.miss_timer -= 1
         if self.win_timer > 0:
-            self.win_timer -= 1  
-        # Then revert to neutral image.
+            self.win_timer -= 1
         else:
             self.image = self.image_idle
 
@@ -108,7 +104,7 @@ class Snowman:
 
     def on_win(self):
         self.image = self.image_win
-        self.win_timer_timer = 30 #makes celebrate animation frame FOR SNOWMAN.
+        self.win_timer = 30 #makes celebrate animation frame FOR SNOWMAN.
     
     def draw(self, win):
         win.blit(self.image, self.rect)
@@ -207,8 +203,8 @@ def main():
 
     player_1 = Players(0, HEIGHT //2 - PLAYER_HEIGHT //2, 'rud_neutral.png', 'rud_hit.png')
     player_2 = Players(WIDTH - PLAYER_WIDTH + 2, HEIGHT //2 - PLAYER_HEIGHT //2, 'comet_neutral.png', 'comet_hit.png')
-    # Snowman Position :
-    snowman = Snowman(WIDTH//4 - SNOWMAN_WIDTH//2, 'snowman_neutral.png', 'snowman_oh.png', 'snowman_celebrate.png')
+    # Snowman Position : ????
+    snowman = Snowman(0, 0, 'snowman_neutral.png', 'snowman_miss.png', 'snowman_win.png')
     ball = Ball(WIDTH //2, HEIGHT //2, BALL_RADIUS)
 
     #Start scores
@@ -235,7 +231,7 @@ def main():
 
         #Ball Movement
         ball.move()
-        handle_collision(ball, snowman, player_1, player_2)
+        handle_collision(ball, player_1, player_2)
 
         player_1.update()
         player_2.update()
